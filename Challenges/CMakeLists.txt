@@ -1,0 +1,2 @@
+add_subdirectory(day1_1)
+add_subdirectory(day1_2)

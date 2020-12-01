@@ -30,3 +30,9 @@
 *.exe
 *.out
 *.app
+
+# Configure and build artifacts
+build
+
+# IDE/Editor stuff
+.vscode
