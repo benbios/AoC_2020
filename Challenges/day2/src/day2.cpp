@@ -22,6 +22,22 @@
  * 
  * How many passwords are valid according to their policies?
  * 
+ * --- Part Two ---
+ * 
+ * While it appears you validated the passwords correctly, they don't seem to be what the Official Toboggan Corporate Authentication System is expecting.
+ * 
+ * The shopkeeper suddenly realizes that he just accidentally explained the password policy rules from his old job at the sled rental place down the street! The Official Toboggan Corporate Policy actually works a little differently.
+ * 
+ * Each policy actually describes two positions in the password, where 1 means the first character, 2 means the second character, and so on. (Be careful; Toboggan Corporate Policies have no concept of "index zero"!) Exactly one of these positions must contain the given letter. Other occurrences of the letter are irrelevant for the purposes of policy enforcement.
+ * 
+ * Given the same example list from above:
+ * 
+ *     1-3 a: abcde is valid: position 1 contains a and position 3 does not.
+ *     1-3 b: cdefg is invalid: neither position 1 nor position 3 contains b.
+ *     2-9 c: ccccccccc is invalid: both position 2 and position 9 contain c.
+ * 
+ * How many passwords are valid according to the new interpretation of the policies?
+ * 
  *****************************************************************/
 
 #include <iostream>
@@ -128,12 +144,7 @@ public:
                     "Positions: " << m_pos_1 << " or " << m_pos_2 << std::endl <<
                     "String: " << m_pass << std::endl <<
                     "Raw: " << m_raw << std::endl;
-        if (m_count_actual != 0) {
-            std::cout << "Actual: " << m_count_actual << std::endl;
-        }
         std::cout << std::endl;
-
-        
     }
 
     bool validate() {
@@ -153,20 +164,6 @@ private:
     const std::string m_delim1 = "-";
     const std::string m_delim2 = " ";
     const std::string m_delim3 = ": ";
-
-    size_t count(void) {
-        size_t _count=0;
-        size_t _pos = 0;
-        while (_pos != m_pass.npos) {
-            _pos = m_pass.find(m_char, _pos);
-            if (_pos != m_pass.npos) {
-                _count++;
-                _pos++;
-            }
-        }
-        m_count_actual = _count;
-        return m_count_actual;
-    }
 };
 
 
