@@ -155,14 +155,14 @@ int main(int argc, char **argv)
     }
 
     std::cout << "========== DAY 3 PART 1 =========" << std::endl;
-    traverse((char *)treeMap, width, length, 3, 1);
+    traverse(reinterpret_cast<char*>(treeMap), width, length, 3, 1);
 
     std::cout << "========== DAY 3 PART 2 =========" << std::endl;
-    size_t product = traverse((char *)treeMap, width, length, 1, 1);
-    product *= traverse((char *)treeMap, width, length, 3, 1);
-    product *= traverse((char *)treeMap, width, length, 5, 1);
-    product *= traverse((char *)treeMap, width, length, 7, 1);
-    product *= traverse((char *)treeMap, width, length, 1, 2);
+    size_t product = traverse(reinterpret_cast<char*>(treeMap), width, length, 1, 1);
+    product *= traverse(reinterpret_cast<char*>(treeMap), width, length, 3, 1);
+    product *= traverse(reinterpret_cast<char*>(treeMap), width, length, 5, 1);
+    product *= traverse(reinterpret_cast<char*>(treeMap), width, length, 7, 1);
+    product *= traverse(reinterpret_cast<char*>(treeMap), width, length, 1, 2);
 
     std::cout << "Product of trees: " << product << std::endl;
 }
