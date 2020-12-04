@@ -134,17 +134,115 @@ Count the number of valid passports - those that have all required fields and va
 #include <vector>
 #include <iostream>
 #include <fstream>
+#include <sstream>
+#include <exception>
 
 namespace Day4 {
 
 class TravelDocument {
 
+
+
 public:
     TravelDocument() = default;
     TravelDocument(std::string byr, std::string iyr, std::string eyr, std::string hgt,
                 std::string hcl, std::string ecl, std::string pid) : 
-        m_byr(std::stoi(byr)), m_iyr(std::stoi(iyr)), m_eyr(std::stoi(eyr)),
-        m_hgt(hgt), m_hcl (hcl), m_ecl(ecl), m_pid(pid) {};
+        //m_byr(std::stoi(byr)),
+        m_iyr(std::stoi(iyr)), m_eyr(std::stoi(eyr)),
+        m_hgt(hgt), m_hcl (hcl), m_ecl(ecl), m_pid(pid) {
+    // Do validation in constructor
+        std::stringstream errstr;
+        //  byr (Birth Year) - four digits; at least 1920 and at most 2002.
+        //  iyr (Issue Year) - four digits; at least 2010 and at most 2020.
+        //  eyr (Expiration Year) - four digits; at least 2020 and at most 2030.
+        //  hgt (Height) - a number followed by either cm or in:
+        //      If cm, the number must be at least 150 and at most 193.
+        //      If in, the number must be at least 59 and at most 76.
+        //  hcl (Hair Color) - a # followed by exactly six characters 0-9 or a-f.
+        //  ecl (Eye Color) - exactly one of: amb blu brn gry grn hzl oth.
+        //  pid (Passport ID) - a nine-digit number, including leading zeroes.
+        //  cid (Country ID) - ignored, missing or not.
+        if (byr.size() != 4) {
+            errstr << "byr size wrong - " << byr << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+        m_byr = std::stoi(byr);
+        if ((m_byr < 1920) || (m_byr > 2002)) {
+            errstr << "byr range wrong - " << m_byr << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+
+        if (iyr.size() != 4) {
+            errstr << "iyr size wrong - " << iyr << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+        m_iyr = std::stoi(iyr);
+        if ((m_iyr < 2010) || (m_iyr > 2020)) {
+            errstr << "iyr range wrong - " << m_iyr << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+
+        if (eyr.size() != 4) {
+            errstr << "eyr size wrong - " << eyr << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+        m_eyr = std::stoi(eyr);
+        if ((m_eyr < 2020) || (m_eyr > 2030)) {
+            errstr << "eyr range wrong - " << m_eyr << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+
+        std::string hgUnit = hgt.substr(hgt.size() - 2);
+        if ((hgUnit != "cm") && (hgUnit != "in")) {
+            errstr << "Height units not cm or in - " << hgt << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+        int hgtVal = std::stoi(hgt);
+        if (hgUnit == "cm") {
+            if ((hgtVal < 150) || (hgtVal > 193)) {
+                std::cerr << hgt << std::endl;
+                errstr << "Height (CM) out of range - " << hgt << std::endl;
+                throw InvalidDocumentException(errstr.str());
+            }
+        }
+        if (hgUnit == "in") {
+            if ((hgtVal < 59) || (hgtVal > 76)) {
+                errstr << "Height (IN) out of range - " << hgt << std::endl;
+                throw InvalidDocumentException(errstr.str());
+            }
+        }
+        if (hcl.at(0) != '#') {
+            errstr << "Hair col missing # identifier - " << hcl << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+
+        std::string acceptedColChars = "0123456789abcdef#";
+        if (hcl.find_first_not_of(acceptedColChars) != hcl.npos) {
+            errstr << "Hair col characters out of range - " << hcl;
+            throw InvalidDocumentException(errstr.str());
+        }
+
+        std::set<std::string> acceptedEyeCols = {
+            "amb", "blu", "brn", "gry", "grn", "hzl", "oth"
+        };
+
+        if (acceptedEyeCols.find(ecl) == acceptedEyeCols.end()) {
+            errstr << "Eye color not acceptable - " << ecl << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+
+        if (pid.size() != 9) {
+            errstr << "PID invalid length - " << pid << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+
+        std::string acceptedPidChars = "0123456789";
+        if (pid.find_first_not_of(acceptedPidChars) != pid.npos) {
+            errstr << "PID contains non-numeric digits - " << pid << std::endl;
+            throw InvalidDocumentException(errstr.str());
+        }
+
+    }
 
     //~TravelDocument();
 
@@ -160,6 +258,18 @@ public:
 
     // Factory method
     static std::unique_ptr<TravelDocument> MakeDocument(std::map<std::string, std::string> kvInput);
+
+    class InvalidDocumentException : public std::exception{
+    public:
+        InvalidDocumentException() {};
+        InvalidDocumentException(std::string message) : __message__(message) {};
+
+        const char *what() const noexcept override {
+            return __message__.c_str();
+        }
+    private:
+        std::string __message__ = "n/a";
+    };
 
 protected:
 
@@ -242,15 +352,20 @@ std::unique_ptr<TravelDocument> TravelDocument::MakeDocument(std::map<std::strin
     }
 
 
-    if (allOptionalsFound) {
-        return std::make_unique<Passport>(kvInput["byr"], kvInput["iyr"], kvInput["eyr"],
-                                          kvInput["hgt"], kvInput["hcl"], kvInput["ecl"],
-                                          kvInput["pid"], kvInput["cid"]);
-    }
-    else {
-        return std::make_unique<NorthPoleCredentials>(kvInput["byr"], kvInput["iyr"], kvInput["eyr"],
-                                          kvInput["hgt"], kvInput["hcl"], kvInput["ecl"],
-                                          kvInput["pid"]);
+    try {
+        if (allOptionalsFound) {
+            return std::make_unique<Passport>(kvInput["byr"], kvInput["iyr"], kvInput["eyr"],
+                                            kvInput["hgt"], kvInput["hcl"], kvInput["ecl"],
+                                            kvInput["pid"], kvInput["cid"]);
+        }
+        else {
+            return std::make_unique<NorthPoleCredentials>(kvInput["byr"], kvInput["iyr"], kvInput["eyr"],
+                                            kvInput["hgt"], kvInput["hcl"], kvInput["ecl"],
+                                            kvInput["pid"]);
+        }
+    } catch (TravelDocument::InvalidDocumentException e) {
+        std::cerr << "Invalid document: " << e.what() << std::endl;
+        return std::unique_ptr<TravelDocument>{};
     }
 }
 
@@ -312,7 +427,7 @@ int main(int argc, char** argv) {
     for (auto i = v.begin(); i != v.end(); i++) {
         std::unique_ptr<TravelDocument> tdp = TravelDocument::MakeDocument(*i);
         if (tdp == nullptr){
-            std::cerr << "This one was null. Not a valid document" << std::endl;
+            //std::cerr << "This one was null. Not a valid document" << std::endl;
             rejectedCount++;
             continue;
         }
