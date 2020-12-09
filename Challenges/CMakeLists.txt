@@ -6,6 +6,7 @@ add_subdirectory(day4)
 add_subdirectory(day5)
 add_subdirectory(day6)
 add_subdirectory(day7)
+add_subdirectory(day8)
 
 
 # Idea here is to add a target that will bootstrap a new day's challenge setup
