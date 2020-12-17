@@ -1,3 +1,7 @@
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 add_subdirectory(day1_1)
 add_subdirectory(day1_2)
 add_subdirectory(day2)
@@ -14,4 +18,6 @@ add_subdirectory(day12)
 add_subdirectory(day13)
 add_subdirectory(day14)
 add_subdirectory(day15)
+add_subdirectory(day16)
+add_subdirectory(day17)
 
